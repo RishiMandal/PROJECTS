@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scientific Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .calculator {
+      width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 2px 2px 12px #aaa;
+    }
+    .display {
+      width: 100%;
+      height: 50px;
+      background: #eee;
+      text-align: right;
+      padding: 10px;
+      font-size: 24px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .button {
+      padding: 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .button:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display"></div>
+    <div class="buttons">
+      <div class="button" onclick="appendNumber('7')">7</div>
+      <div class="button" onclick="appendNumber('8')">8</div>
+      <div class="button" onclick="appendNumber('9')">9</div>
+      <div class="button" onclick="chooseOperation('/')">/</div>
+      <div class="button" onclick="computeMathFunction('sqrt')">√</div>
+      <div class="button" onclick="appendNumber('4')">4</div>
+      <div class="button" onclick="appendNumber('5')">5</div>
+      <div class="button" onclick="appendNumber('6')">6</div>
+      <div class="button" onclick="chooseOperation('*')">*</div>
+      <div class="button" onclick="computeMathFunction('pow')">^</div>
+      <div class="button" onclick="appendNumber('1')">1</div>
+      <div class="button" onclick="appendNumber('2')">2</div>
+      <div class="button" onclick="appendNumber('3')">3</div>
+      <div class="button" onclick="chooseOperation('-')">-</div>
+      <div class="button" onclick="computeMathFunction('sin')">sin</div>
+      <div class="button" onclick="appendNumber('0')">0</div>
+      <div class="button" onclick="appendNumber('.')">.</div>
+      <div class="button" onclick="compute()">=</div>
+      <div class="button" onclick="chooseOperation('+')">+</div>
+      <div class="button" onclick="clearDisplay()">C</div>
+    </div>
+  </div>
+  <script>
+    let display = document.getElementById('display');
+    let currentInput = '';
+    let operator = '';
+    let previousInput = '';
+
+    function appendNumber(number) {
+      currentInput += number;
+      display.innerText = currentInput;
+    }
+
+    function chooseOperation(op) {
+      if (currentInput === '') return;
+      if (previousInput !== '') {
+        compute();
+      }
+      operator = op;
+      previousInput = currentInput;
+      currentInput = '';
+      display.innerText = previousInput + ' ' + operator;
+    }
+
+    function computeMathFunction(func) {
+      let result;
+      const current = parseFloat(currentInput);
+      if (isNaN(current)) return;
+      switch (func) {
+        case 'sqrt':
+          result = Math.sqrt(current);
+          break;
+        case 'pow':
+          result = Math.pow(previousInput, current);
+          break;
+        case 'sin':
+          result = Math.sin(current * Math.PI / 180);
+          break;
+        default:
+          return;
+      }
+      currentInput = result;
+      operator = '';
+      previousInput = '';
+      display.innerText = result;
+    }
+
+    function compute() {
+      let computation;
+      const prev = parseFloat(previousInput);
+      const current = parseFloat(currentInput);
+      if (isNaN(prev) || isNaN(current)) return;
+      switch (operator) {
+        case '+':
+          computation = prev + current;
+          break;
+        case '-':
+          computation = prev - current;
+          break;
+        case '*':
+          computation = prev * current;
+          break;
+        case '/':
+          computation = prev / current;
+          break;
+        default:
+          return;
+      }
+      currentInput = computation;
+      operator = '';
+      previousInput = '';
+      display.innerText = computation;
+    }
+
+    function clearDisplay() {
+      currentInput = '';
+      previousInput = '';
+      operator = '';
+      display.innerText = '';
+    }
+  </script>
+</body>
+</html>

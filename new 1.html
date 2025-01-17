@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>
+JAVASCRIPT
+</title>
+</head>
+<body>
+<script>
+function checkAccess(){
+var passsword = document.getElementById("input");
+var passwordname = passsword.value;
+if (passwordname=="khetedao") {
+return true;
+}
+alert ("Incorrect password");
+return false;
+}
+</script>
+<p>password:<input id="input" type="password"></p>
+<a href="https://www.google.com" onclick="return checkAccess();">
+Click here to access secret website
+</a>
+</body>
+<html>

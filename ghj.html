@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pokémon Battle Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f3f3f3;
+      margin-top: 50px;
+    }
+    .pokemon-container {
+      display: inline-block;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 2px 2px 12px #aaa;
+      background-color: #fff;
+      margin: 10px;
+    }
+    .pokemon-stats {
+      text-align: left;
+      margin: 10px auto;
+      list-style: none;
+      padding: 0;
+    }
+    .pokemon-move {
+      display: block;
+      margin: 5px;
+      padding: 10px;
+      background-color: #e7e7e7;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pokémon Battle Simulator</h1>
+  <div>
+    <label for="pokemonInput1">Enter Pokémon 1 Name or ID:</label>
+    <input type="text" id="pokemonInput1">
+    <button onclick="selectPokemon(1)">Choose</button>
+    <label for="pokemonInput2">Enter Pokémon 2 Name or ID:</label>
+    <input type="text" id="pokemonInput2">
+    <button onclick="selectPokemon(2)">Choose</button>
+  </div>
+  <div id="battleLog"></div>
+  <div class="pokemon-container" id="pokemon1" style="display: none;">
+    <h2 id="name1">Pikachu</h2>
+    <img id="image1" class="pokemon-image" src="" alt="Pokemon Image">
+    <ul class="pokemon-stats">
+      <li>HP: <span id="hp1">100</span></li>
+      <li>Attack: 55</li>
+      <li>Defense: 40</li>
+      <li>Special Attack: 50</li>
+      <li>Special Defense: 50</li>
+      <li>Speed: 90</li>
+    </ul>
+    <button class="pokemon-move" id="move1_1" onclick="attack('Thunderbolt', 40, 1)">Thunderbolt</button>
+    <button class="pokemon-move" id="move1_2" onclick="attack('Quick Attack', 20, 1)">Quick Attack</button>
+    <button class="pokemon-move" id="move1_3" onclick="attack('Iron Tail', 25, 1)">Iron Tail</button>
+    <button class="pokemon-move" id="move1_4" onclick="attack('Electro Ball', 35, 1)">Electro Ball</button>
+  </div>
+  <div class="pokemon-container" id="pokemon2" style="display: none;">
+    <h2 id="name2">Charmander</h2>
+    <img id="image2" class="pokemon-image" src="" alt="Pokemon Image">
+    <ul class="pokemon-stats">
+      <li>HP: <span id="hp2">100</span></li>
+      <li>Attack: 52</li>
+      <li>Defense: 43</li>
+      <li>Special Attack: 60</li>
+      <li>Special Defense: 50</li>
+      <li>Speed: 65</li>
+    </ul>
+    <button class="pokemon-move" id="move2_1" onclick="attack('Flamethrower', 40, 2)">Flamethrower</button>
+    <button class="pokemon-move" id="move2_2" onclick="attack('Scratch', 15, 2)">Scratch</button>
+    <button class="pokemon-move" id="move2_3" onclick="attack('Ember', 25, 2)">Ember</button>
+    <button class="pokemon-move" id="move2_4" onclick="attack('Dragon Rage', 35, 2)">Dragon Rage</button>
+  </div>
+  <script>
+    async function selectPokemon(player) {
+      const pokemonInput = document.getElementById(`pokemonInput${player}`).value.toLowerCase();
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInput}`);
+      if (!response.ok) {
+        alert("Pokemon not found!");
+        return;
+      }
+      const pokemonData = await response.json();
+      displayPokemon(pokemonData, player);
+    }
+
+    function displayPokemon(pokemon, player) {
+      const pokemonContainer = document.getElementById(`pokemon${player}`);
+      const pokemonName = document.getElementById(`name${player}`);
+      const pokemonImage = document.getElementById(`image${player}`);
+      const pokemonStats = document.getElementById(`hp${player}`);
+      pokemonContainer.style.display = "block";
+      pokemonName.innerText = capitalizeFirstLetter(pokemon.name);
+      pokemonImage.src = pokemon.sprites.front_default;
+      pokemonStats.innerText = pokemon.stats[0].base_stat;
+
+      for (let i = 0; i < pokemon.moves.length && i < 4; i++) {
+        document.getElementById(`move${player}_${i + 1}`).innerText = capitalizeFirstLetter(pokemon.moves[i].move.name);
+        document.getElementById(`move${player}_${i + 1}`).onclick = function() {
+          attack(pokemon.moves[i].move.name, pokemon.moves[i].move.power || 10, player); // Default to 10 if move power is not available
+        };
+      }
+    }
+
+    function attack(move, damage, attacker) {
+      const defender = attacker === 1 ? 2 : 1;
+      const hpDefender = document.getElementById(`hp${defender}`);
+      let hp = parseInt(hpDefender.innerText);
+      hp = Math.max(hp - damage, 0);
+      hpDefender.innerText = hp;
+      logBattle(`${attacker === 1 ? document.getElementById('name1').innerText : document.getElementById('name2').innerText} used ${move}. It dealt ${damage} damage!`);
+
+      if (hp <= 0) {
+        logBattle(`${defender === 1 ? document.getElementById('name1').innerText : document.getElementById('name2').innerText} fainted! ${attacker === 1 ? document.getElementById('name1').innerText : document.getElementById('name2').innerText} wins!`);
+        endGame(attacker);
+      }
+    }
+
+    function logBattle(message) {
+      const battleLog = document.getElementById('battleLog');
+      battleLog.innerHTML += `<p>${message}</p>`;
+    }
+
+    function endGame(winner) {
+      const winnerName = document.getElementById(`name${winner}`).innerText;
+      logBattle(`Game Over! ${winnerName} wins the battle!`);
+      alert(`Game Over! ${winnerName} wins the battle!`);
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+  </script>
+</body>
+</html>
